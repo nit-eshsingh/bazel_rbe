@@ -1,0 +1,14 @@
+# Bazel configuration file
+
+# Use local execution by default
+build --spawn_strategy=local
+
+# Show more detailed output
+build --verbose_failures
+
+# Enable C++17 standard
+build --cxxopt=-std=c++17
+
+# Windows specific settings
+build:windows --copt=/W3
+build:windows --host_copt=/W3

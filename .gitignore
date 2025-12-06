@@ -1,0 +1,45 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Bazel
+bazel-*
+/bazel-bin
+/bazel-out
+/bazel-testlogs
+/bazel-bazel_rbe
+
+# Bazel binary (downloaded executable)
+bazel.exe
+bazel
+
+# Build outputs
+*.exe
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Logs
+*.log
+app.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/

@@ -1,0 +1,8 @@
+# BUILD file for nlohmann/json
+
+cc_library(
+    name = "json",
+    hdrs = glob(["include/**/*.hpp"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
