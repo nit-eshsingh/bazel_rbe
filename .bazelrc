@@ -12,3 +12,22 @@ build --cxxopt=-std=c++17
 # Windows specific settings
 build:windows --copt=/W3
 build:windows --host_copt=/W3
+
+# ============================================
+# Remote Caching Configuration (Bazel Remote Cache)
+# ============================================
+
+# Remote cache configuration
+build:remote-cache --remote_cache=grpc://localhost:9092
+build:remote-cache --remote_timeout=60
+build:remote-cache --remote_upload_local_results=true
+build:remote-cache --remote_accept_cached=true
+build:remote-cache --remote_local_fallback=true
+
+# Logging for cache hits/misses
+build:remote-cache --experimental_remote_cache_compression
+build:remote-cache --verbose_failures
+
+# To use remote caching, run:
+# bazel build --config=remote-cache //...
+

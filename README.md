@@ -11,10 +11,19 @@ A comprehensive C and C++ project demonstrating Bazel build system features incl
 ```
 bazel_rbe/
 ├── WORKSPACE                 # Bazel workspace configuration with external dependencies
-├── .bazelrc                  # Bazel build configuration
+├── .bazelrc                  # Bazel build configuration (includes remote cache config)
 ├── BUILD                     # Root BUILD file
 ├── bazel.exe                 # Bazel binary (v7.4.1)
 ├── nlohmann_json.BUILD       # Build file for nlohmann/json third-party library
+├── docker-compose.yml        # BuildBarn remote caching services
+├── start-buildbarn.ps1       # Script to start BuildBarn
+├── stop-buildbarn.ps1        # Script to stop BuildBarn
+│
+├── buildbarn/                # BuildBarn remote caching configuration
+│   ├── README.md             # BuildBarn setup and usage guide
+│   └── config/
+│       ├── storage.jsonnet   # Storage configuration (CAS + AC)
+│       └── browser.jsonnet   # Web UI configuration
 │
 ├── c_project/                # C Language Project
 │   ├── BUILD                 # Main C project targets
@@ -31,10 +40,34 @@ bazel_rbe/
 │   │   ├── file_io.h
 │   │   └── file_io.c
 │   │
-│   └── data_structures/      # Data structures submodule
-│       ├── BUILD
-│       ├── linked_list.{c,h} # Linked list implementation
-│       └── stack.{c,h}       # Stack implementation
+│   ├── data_structures/      # Data structures submodule
+│   │   ├── BUILD
+│   │   ├── linked_list.{c,h} # Linked list implementation
+│   │   └── stack.{c,h}       # Stack implementation
+│   │
+│   └── automotive/           # Automotive domain modules
+│       ├── BUILD             # Main automotive app
+│       ├── automotive_main.c # Automotive simulation
+│       ├── clutch/           # Clutch system module
+│       │   ├── BUILD
+│       │   ├── clutch.h
+│       │   └── clutch.c
+│       ├── brake/            # Brake system module
+│       │   ├── BUILD
+│       │   ├── brake.h
+│       │   └── brake.c
+│       ├── gear/             # Gearbox/transmission module
+│       │   ├── BUILD
+│       │   ├── gear.h
+│       │   └── gear.c
+│       ├── ev/               # Electric vehicle battery module
+│       │   ├── BUILD
+│       │   ├── ev_battery.h
+│       │   └── ev_battery.c
+│       └── powertrain/       # Powertrain/engine module
+│           ├── BUILD
+│           ├── powertrain.h
+│           └── powertrain.c
 │
 └── cpp_project/              # C++ Language Project
     ├── BUILD                 # Main C++ project targets
@@ -110,10 +143,13 @@ cpp_app (binary)
 ### Run Applications
 ```powershell
 # Run C application
-.\bazel.exe run //c_project:c_app
+bazel run //c_project:c_app
 
 # Run C++ application
-.\bazel.exe run //cpp_project:cpp_app
+bazel run //cpp_project:cpp_app
+
+# Run Automotive simulation (NEW!)
+bazel run //c_project/automotive:automotive_app
 ```
 
 ### Run Tests
@@ -130,14 +166,70 @@ cpp_app (binary)
 ### Query Dependencies
 ```powershell
 # Show dependencies of a target
-.\bazel.exe query "deps(//cpp_project:cpp_app)"
+bazel query "deps(//cpp_project:cpp_app)"
 
 # Show reverse dependencies (what depends on this target)
-.\bazel.exe query "rdeps(//..., //cpp_project/logger:logger)"
+bazel query "rdeps(//..., //cpp_project/logger:logger)"
 
 # Show build graph
-.\bazel.exe query --output graph "//cpp_project:cpp_app" > graph.dot
+bazel query --output graph "//cpp_project:cpp_app" > graph.dot
 ```
+
+## Remote Caching with BuildBarn
+
+This project includes BuildBarn for remote build caching, which dramatically speeds up builds by caching artifacts.
+
+### Quick Start with Remote Caching
+
+1. **Start BuildBarn Services:**
+   ```powershell
+   .\start-buildbarn.ps1
+   ```
+   Or manually:
+   ```powershell
+   docker-compose up -d
+   ```
+
+2. **Build with Remote Cache:**
+   ```powershell
+   # First build (populates cache)
+   bazel clean
+   bazel build --config=remote-cache //c_project/automotive:automotive_app
+   
+   # Second build (uses cache - much faster!)
+   bazel build --config=remote-cache //c_project/automotive:automotive_app
+   ```
+
+3. **Access Web UI:**
+   Open http://localhost:8081 to explore cached artifacts
+
+4. **Stop BuildBarn:**
+   ```powershell
+   .\stop-buildbarn.ps1
+   ```
+
+For detailed information, see [buildbarn/README.md](buildbarn/README.md)
+
+## Automotive Domain Features (NEW!)
+
+The C project now includes comprehensive automotive system modules:
+
+### Modules:
+- **Clutch System**: Hydraulic/cable clutch with wear simulation
+- **Brake System**: ABS-enabled brakes with temperature and wear tracking
+- **Gearbox**: Manual, Automatic, CVT, and DCT transmissions
+- **EV Battery**: State of charge, health, charging cycles, range calculation
+- **Powertrain**: ICE, Hybrid, and Electric motor simulation
+
+### Run Automotive Simulation:
+```powershell
+bazel run //c_project/automotive:automotive_app
+```
+
+The simulation demonstrates:
+- ICE (Internal Combustion Engine) vehicle operation
+- Electric Vehicle (EV) with regenerative braking
+- Hybrid vehicle with dual power sources
 
 ## Bazel Concepts Demonstrated
 

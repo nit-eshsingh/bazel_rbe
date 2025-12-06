@@ -1,0 +1,30 @@
+# Simple Remote Cache Setup using Bazel Remote Cache
+# Using bazel-remote as a simpler alternative to BuildBarn
+
+version: "3.8"
+
+services:
+  # Bazel Remote Cache - Simple HTTP/gRPC cache server
+  cache:
+    image: buchgr/bazel-remote-cache:latest
+    container_name: bazel-cache
+    volumes:
+      - ./cache-data:/data
+    ports:
+      - "8080:8080"  # HTTP
+      - "9092:9092"  # gRPC
+    command:
+      - --dir=/data
+      - --max_size=10
+      - --host=0.0.0.0
+      - --port=8080
+      - --grpc_port=9092
+    networks:
+      - bazel
+
+networks:
+  bazel:
+    driver: bridge
+
+volumes:
+  cache-data:
